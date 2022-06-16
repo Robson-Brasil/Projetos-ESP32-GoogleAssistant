@@ -1,0 +1,3 @@
+Projeto criado com intuito de aprendizado, sendo assim, erros e acertos acontecerão e quem puder me ajudar a melhorar o código, ficaria super agradecido.
+Lembrando, optei pelo Google Assistant, pelo simples fato dele não necessitar da assistente física.
+Como teste, estou utilizando o NORA na sua forma gratuita, que só me disponibiliza 5 DEVICES, mas o restante dos DEVICES estão funcionando via MQTT Dashboard.
