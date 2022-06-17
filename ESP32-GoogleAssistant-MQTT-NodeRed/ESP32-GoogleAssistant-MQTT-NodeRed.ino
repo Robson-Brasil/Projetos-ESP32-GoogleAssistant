@@ -269,22 +269,20 @@ void loop() {
    }   else {
     digitalWrite(wifiLed, LOW);
   }
-  
-  client.loop();
+   client.loop();
 unsigned long now = millis();
     if (now - lastMsg > 1000) {
     float hum_data = dht.readHumidity();
-    Serial.println(hum_data);
-    /* 4 is mininum width, 2 is precision; float value is copied onto str_sensor*/
     dtostrf(hum_data, 4, 2, str_hum_data);
-    float temp_data = dht.readTemperature(); // or dht.readTemperature(true) for Fahrenheit
+    float temp_data = dht.readTemperature(); // ou dht.readTemperature(true) para Fahrenheit
     dtostrf(temp_data, 4, 2, str_temp_data);
     lastMsg = now;
     
-    Serial.print("Publish MQTT: ");
+    Serial.print("Publish no Broker MQTT: ");
     Serial.print("Temperatura - "); Serial.print(str_temp_data); Serial.println(F("°C"));
     client.publish("ESP32-MinhaCasa/QuartoRobson/Temperatura", str_temp_data);
     
+    Serial.print("Publish no Broker MQTT: ");
     Serial.print("Umidade - "); Serial.print(str_hum_data); Serial.println(F("%"));
     client.publish("ESP32-MinhaCasa/QuartoRobson/Umidade", str_hum_data);
         }
