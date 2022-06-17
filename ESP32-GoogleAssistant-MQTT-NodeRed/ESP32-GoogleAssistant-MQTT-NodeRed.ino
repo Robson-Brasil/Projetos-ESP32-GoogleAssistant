@@ -6,20 +6,15 @@
 //Nora
 //Google Assistant
 //Autor : Robson Brasil
-//Versão : 40
-//Última Modificação : 13/06/2022
+//Versão : 45
+//Última Modificação : 16/06/2022
  **********************************************************************************/
 
   #include <WiFi.h>
   #include <DHT.h>
   #include <PubSubClient.h>
-  #include <ESPmDNS.h>
-  #include <SPIFFS.h>
-
-  // Bibliotecas comuns
   #include <WiFiUdp.h>
-  #include <ArduinoOTA.h>
-
+  
 // Relays
 #define RelayPin1 23  //D23 Ligados ao Nora
 #define RelayPin2 22  //D22 Ligados ao Nora
@@ -88,19 +83,6 @@ unsigned long lastMsg = 0;
 char msg[MSG_BUFFER_SIZE];
 int value = 0;
 
-void setup_wifi() {
-  delay(10);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi Conectado");
-  Serial.println("Endereço de IP");
-  Serial.println(WiFi.localIP());
-}
-
 void reconnect() {
   while (!client.connected()) {
     if (client.connect(clientID, mqttUserName, mqttPwd)) {
@@ -114,6 +96,7 @@ void reconnect() {
       client.subscribe(sub6);
       client.subscribe(sub7);
       client.subscribe(sub8);
+      Serial.println("Topic Subscribed");
     } 
   else {
       Serial.print("Falha, Reconectando=");
@@ -129,10 +112,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Mensagem Chegou [");
   Serial.print(topic);
   Serial.print("] ");
+  String data = "";
 
   if (strstr(topic, sub1)) {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
+      data += (char)payload[i];
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
@@ -144,6 +129,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   } else if (strstr(topic, sub2)) {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
+      data += (char)payload[i];
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
@@ -155,6 +141,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   } else if (strstr(topic, sub3)) {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
+      data += (char)payload[i];
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
@@ -166,6 +153,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   } else if (strstr(topic, sub4)) {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
+      data += (char)payload[i];
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
@@ -177,6 +165,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   } else if (strstr(topic, sub5)) {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
+      data += (char)payload[i];
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
@@ -188,6 +177,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     } else if (strstr(topic, sub6)) {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
+      data += (char)payload[i];
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
@@ -199,6 +189,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     } else if (strstr(topic, sub7)) {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
+      data += (char)payload[i];
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
@@ -210,6 +201,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     } else if (strstr(topic, sub8)) {
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
+      data += (char)payload[i];
     }
     Serial.println();
     // Switch on the LED if an 1 was received as first character
@@ -225,28 +217,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void setup() {
   Serial.begin(115200);
-  WiFi.mode(WIFI_AP_STA); //Comfigura o ESP32 como ponto de acesso e estação
-  WiFi.begin(ssid, password);// inicia a conexão com o WiFi
-
-  // Inicializa SPIFFS
-  if (SPIFFS.begin()) {
-    Serial.println("SPIFFS Ok");
-  } else {
-    Serial.println("SPIFFS Falha");
-  }
-
-  // Verifica / exibe arquivo
-  if (SPIFFS.exists("/Teste.txt")) {
-    File f = SPIFFS.open("/Teste.txt", "r");
-    if (f) {
-      Serial.println("Lendo arquivo:");
-      Serial.println(f.readString());
-      f.close();
-    }
-  } else {
-    Serial.println("Arquivo não encontrado.");
-  }
-  
   // Conecta WiFi
   WiFi.begin(ssid, password);
   Serial.println("\nConectando WiFi " + String(ssid));
@@ -256,57 +226,10 @@ void setup() {
   }
   Serial.println();
 
-  ArduinoOTA.setHostname("ESP32-1");
-
-  ArduinoOTA.onStart([](){
-    String s;
-    if (ArduinoOTA.getCommand() == U_FLASH) {
-      // Atualizar sketch
-      s = "Sketch";
-    } else { // U_SPIFFS
-      // Atualizar SPIFFS
-      s = "SPIFFS";
-      // SPIFFS deve ser finalizada
-      SPIFFS.end();
-    }
-    Serial.println("Iniciando OTA - " + s);
-  });
-
-  // Fim
-  ArduinoOTA.onEnd([](){
-    Serial.println("\nOTA Concluído.");
-  });
-
-  // Progresso
-  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial.print(progress * 100 / total);
-    Serial.print(" ");
-  });
-
-  // Falha
-  ArduinoOTA.onError([](ota_error_t error) {
-    Serial.print("Erro " + String(error) + " ");
-    if (error == OTA_AUTH_ERROR) {
-      Serial.println("Falha de autorização");
-    } else if (error == OTA_BEGIN_ERROR) {
-      Serial.println("Falha de inicialização");
-    } else if (error == OTA_CONNECT_ERROR) {
-      Serial.println("Falha de conexão");
-    } else if (error == OTA_RECEIVE_ERROR) {
-      Serial.println("Falha de recebimento");
-    } else if (error == OTA_END_ERROR) {
-      Serial.println("Falha de finalização");
-    } else {
-      Serial.println("Falha desconhecida");
-    }
-  });
-
-  // Inicializa OTA
-  ArduinoOTA.begin();
-
-  // Pronto
-  Serial.println("Atualização via OTA disponível.");
-  Serial.print("Endereço IP: ");
+   // Pronto
+  Serial.println("");
+  Serial.println("WiFi Conectado");
+  Serial.println("Endereço de IP");
   Serial.println(WiFi.localIP());
   
   pinMode(RelayPin1, OUTPUT);
@@ -335,23 +258,21 @@ void setup() {
 
   dht.begin();
 
-  setup_wifi();
-  
   client.setServer(mqttServer, 1883);
   client.setCallback(callback);
 }
 
 void loop() {
-  ArduinoOTA.handle();
-  if (!client.connected()) {
+   if (!client.connected()) {
     digitalWrite(wifiLed, HIGH);
     reconnect();
-  } else {
+   }   else {
     digitalWrite(wifiLed, LOW);
   }
+  
   client.loop();
 unsigned long now = millis();
-    if (now - lastMsg > 2000) {
+    if (now - lastMsg > 1000) {
     float hum_data = dht.readHumidity();
     Serial.println(hum_data);
     /* 4 is mininum width, 2 is precision; float value is copied onto str_sensor*/
@@ -362,7 +283,9 @@ unsigned long now = millis();
     Serial.print("Publish MQTT: ");
     Serial.print("Temperatura - "); Serial.println(str_temp_data);
     client.publish("ESP32-MinhaCasa/QuartoRobson/Temperatura", str_temp_data);
+    Serial.println(F("°C"));
     Serial.print("Umidade - "); Serial.println(str_hum_data);
     client.publish("ESP32-MinhaCasa/QuartoRobson/Umidade", str_hum_data);
+    Serial.println(F("%"));
     }
- }
+}
