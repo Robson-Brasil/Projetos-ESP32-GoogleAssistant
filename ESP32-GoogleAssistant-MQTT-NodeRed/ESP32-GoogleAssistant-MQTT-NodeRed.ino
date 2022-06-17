@@ -280,12 +280,12 @@ unsigned long now = millis();
     float temp_data = dht.readTemperature(); // or dht.readTemperature(true) for Fahrenheit
     dtostrf(temp_data, 4, 2, str_temp_data);
     lastMsg = now;
+    
     Serial.print("Publish MQTT: ");
-    Serial.print("Temperatura - "); Serial.println(str_temp_data);
+    Serial.print("Temperatura - "); Serial.print(str_temp_data); Serial.println(F("°C"));
     client.publish("ESP32-MinhaCasa/QuartoRobson/Temperatura", str_temp_data);
-    Serial.println(F("°C"));
-    Serial.print("Umidade - "); Serial.println(str_hum_data);
+    
+    Serial.print("Umidade - "); Serial.print(str_hum_data); Serial.println(F("%"));
     client.publish("ESP32-MinhaCasa/QuartoRobson/Umidade", str_hum_data);
-    Serial.println(F("%"));
-    }
+        }
 }
