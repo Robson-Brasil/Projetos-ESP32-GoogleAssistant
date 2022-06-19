@@ -49,6 +49,79 @@ const char* mqttUserName = "Robson Brasil";           // MQTT UserName
 const char* mqttPwd = "LoboAlfa";                     // MQTT Password
 const char* clientID = "ESP32ClientGoogleAssistant";  // Client ID Obs.: Deve ser único
 
+// Constantes -------------------------------------------
+const char*   ntpServer           = "pool.ntp.br";
+const long    gmtOffset_sec       = -4 * 60 * 60;   // -3h*60min*60s = -10800s
+const int     daylightOffset_sec  = 0;              // Fuso em horário de verão
+
+// Variáveis globais ------------------------------------
+time_t        nextNTPSync         = 0;
+
+// Funções auxiliares -----------------------------------
+String dateTimeStr(time_t t, int8_t tz = -4) {
+  // Formata time_t como "aaaa-mm-dd hh:mm:ss"
+  if (t == -4) {
+    return "N/D";
+  } else {
+    t += tz * 3600;                               // Ajusta fuso horário
+    struct tm *ptm;
+    ptm = gmtime(&t);
+    String s;
+    s = ptm->tm_year + 1900;
+    s += "-";
+    if (ptm->tm_mon < 9) {
+      s += "0";
+    }
+    s += ptm->tm_mon + 1;
+    s += "-";
+    if (ptm->tm_mday < 10) {
+      s += "0";
+    }
+    s += ptm->tm_mday;
+    s += " ";
+    if (ptm->tm_hour < 10) {
+      s += "0";
+    }
+    s += ptm->tm_hour;
+    s += ":";
+    if (ptm->tm_min < 10) {
+      s += "0";
+    }
+    s += ptm->tm_min;
+    s += ":";
+    if (ptm->tm_sec < 10) {
+      s += "0";
+    }
+    s += ptm->tm_sec;
+    return s;
+  }
+}
+
+String timeStatus() {
+  // Obtém o status da sinronização
+  if (nextNTPSync == 0) {
+    return "não definida";
+  } else if (time(NULL) < nextNTPSync) {
+    return "atualizada";
+  } else {
+    return "atualização pendente";
+  }
+}
+
+// Callback de sincronização
+  // ESP32
+  void ntpSync_cb(struct timeval *tv) {
+
+  time_t t;
+  t = time(NULL);
+  // Data/Hora da próxima atualização
+  nextNTPSync = t + (SNTP_UPDATE_DELAY / 1000) + 1;
+
+  Serial.println("Sincronizou com NTP em " + dateTimeStr(t));
+  Serial.println("Limite para próxima sincronização é " +
+                  dateTimeStr(nextNTPSync));
+}
+
 IPAddress staticIP(192, 168, 15, 50);
 IPAddress gateway(192, 168, 15, 1);
 IPAddress subnet(255, 255, 255, 0);
@@ -213,6 +286,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void setup() {
   Serial.begin(115200);
+  sntp_set_time_sync_notification_cb(ntpSync_cb);
+    Serial.printf("\n\nNTP sincroniza a cada %d segundos\n",
+                SNTP_UPDATE_DELAY / 1000);
+
+  // Função para inicializar o cliente NTP
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+
   // Conecta WiFi
   WiFi.begin(ssid, password);
   Serial.println("\nConectando WiFi " + String(ssid));
@@ -305,5 +385,8 @@ void loop() {
     Serial.print("Umidade - "); Serial.print(str_hum_data); Serial.println(F("%"));
     client.publish("ESP32-MinhaCasa/QuartoRobson/Umidade", str_hum_data);
     Serial.println();
+
+    Serial.println(dateTimeStr(time(NULL)) + "\tStatus: " + timeStatus());
+
         }
 }
