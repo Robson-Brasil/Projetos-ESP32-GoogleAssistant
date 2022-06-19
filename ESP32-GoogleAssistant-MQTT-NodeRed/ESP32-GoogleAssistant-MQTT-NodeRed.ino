@@ -6,14 +6,15 @@
 //Nora
 //Google Assistant
 //Autor : Robson Brasil
-//Versão : 45
-//Última Modificação : 16/06/2022
+//Versão : 50
+//Última Modificação : 18/06/2022
  **********************************************************************************/
 
   #include <WiFi.h>
   #include <DHT.h>
   #include <PubSubClient.h>
   #include <WiFiUdp.h>
+  #include <ESP32Ping.h>
   
 // Relays
 #define RelayPin1 23  //D23 Ligados ao Nora
@@ -48,6 +49,11 @@ const char* mqttUserName = "Robson Brasil";           // MQTT UserName
 const char* mqttPwd = "LoboAlfa";                     // MQTT Password
 const char* clientID = "ESP32ClientGoogleAssistant";  // Client ID Obs.: Deve ser único
 
+IPAddress staticIP(192, 168, 15, 50);
+IPAddress gateway(192, 168, 15, 1);
+IPAddress subnet(255, 255, 255, 0);
+IPAddress dns(192, 168, 15, 1);
+
 //Tópicos do Subscribe
 #define sub1 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor1"   // Ligados ao Nora
 #define sub2 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor2"   // Ligados ao Nora
@@ -57,18 +63,8 @@ const char* clientID = "ESP32ClientGoogleAssistant";  // Client ID Obs.: Deve se
 #define sub6 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor6"   // Somente por MQTT
 #define sub7 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor7"   // Somente por MQTT
 #define sub8 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor8"   // Somente por MQTT
-//#define sub9 "ESP32-MinhaCasa/QuartoRobson/Temperatura"
-//#define sub10 "ESP32-MinhaCasa/QuartoRobson/Umidade"
 
 //Tópicos do Publish
-//#define pub1 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor1"   // Ligados ao Nora
-//#define pub2 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor2"   // Ligados ao Nora
-//#define pub3 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor3"   // Ligados ao Nora
-//#define pub4 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor4"   // Ligados ao Nora
-//#define pub5 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor5"   // Ligados ao Nora
-//#define pub6 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor6"   // Somente por MQTT
-//#define pub7 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor7"   // Somente por MQTT
-//#define pub8 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor8"   // Somente por MQTT
 #define pub9  "ESP32-MinhaCasa/QuartoRobson/Temperatura"
 #define pub10 "ESP32-MinhaCasa/QuartoRobson/Umidade"
 
@@ -220,7 +216,10 @@ void setup() {
   // Conecta WiFi
   WiFi.begin(ssid, password);
   Serial.println("\nConectando WiFi " + String(ssid));
-  while(WiFi.status() != WL_CONNECTED) {
+    if (WiFi.config(staticIP, gateway, subnet, dns, dns) == false) {
+    Serial.println("Configuration failed.");
+  }
+    while(WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
   }
@@ -231,6 +230,20 @@ void setup() {
   Serial.println("WiFi Conectado");
   Serial.println("Endereço de IP");
   Serial.println(WiFi.localIP());
+  Serial.print("Subnet Mask: ");
+  Serial.println(WiFi.subnetMask());
+  Serial.print("Gateway IP: ");
+  Serial.println(WiFi.gatewayIP());
+  Serial.print("DNS 1: ");
+  Serial.println(WiFi.dnsIP(0));
+  Serial.print("DNS 2: ");
+  Serial.println(WiFi.dnsIP(1));
+
+  bool success = Ping.ping("www.google.com", 3);
+  
+  if(!success){
+    Serial.println("\nPing failed");
+    return;}
   
   pinMode(RelayPin1, OUTPUT);
   pinMode(RelayPin2, OUTPUT);
@@ -269,13 +282,19 @@ void loop() {
    }   else {
     digitalWrite(wifiLed, LOW);
   }
+  
    client.loop();
-unsigned long now = millis();
+   
+    unsigned long now = millis();
     if (now - lastMsg > 1000) {
-    float hum_data = dht.readHumidity();
-    dtostrf(hum_data, 4, 2, str_hum_data);
-    float temp_data = dht.readTemperature(); // ou dht.readTemperature(true) para Fahrenheit
+
+    float temp_data = dht.readTemperature(); // or dht.readTemperature(true) for Fahrenheit
     dtostrf(temp_data, 4, 2, str_temp_data);
+
+    float hum_data = dht.readHumidity();
+    /* 4 is mininum width, 2 is precision; float value is copied onto str_sensor*/
+    dtostrf(hum_data, 4, 2, str_hum_data);
+    
     lastMsg = now;
     
     Serial.print("Publish no Broker MQTT: ");
@@ -285,5 +304,6 @@ unsigned long now = millis();
     Serial.print("Publish no Broker MQTT: ");
     Serial.print("Umidade - "); Serial.print(str_hum_data); Serial.println(F("%"));
     client.publish("ESP32-MinhaCasa/QuartoRobson/Umidade", str_hum_data);
+    Serial.println();
         }
 }
