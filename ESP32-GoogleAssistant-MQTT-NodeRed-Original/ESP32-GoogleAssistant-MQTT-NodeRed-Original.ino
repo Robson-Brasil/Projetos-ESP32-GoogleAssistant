@@ -102,9 +102,9 @@ String timeStatus() {
   if (nextNTPSync == 0) {
     return "não definida";
   } else if (time(NULL) < nextNTPSync) {
-    return "atualizada";
+    return "Hora Atualizada";
   } else {
-    return "atualização pendente";
+    return "Atualização Pendente";
   }
 }
 
@@ -297,7 +297,7 @@ void setup() {
   WiFi.begin(ssid, password);
   Serial.println("\nConectando WiFi " + String(ssid));
     if (WiFi.config(staticIP, gateway, subnet, dns, dns) == false) {
-    Serial.println("Configuration failed.");
+    Serial.println("Configuração Falhou");
   }
     while(WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
@@ -322,7 +322,7 @@ void setup() {
   bool success = Ping.ping("www.google.com", 3);
   
   if(!success){
-    Serial.println("\nPing failed");
+    Serial.println("\nPing Falhou");
     return;}
   
   pinMode(RelayPin1, OUTPUT);
