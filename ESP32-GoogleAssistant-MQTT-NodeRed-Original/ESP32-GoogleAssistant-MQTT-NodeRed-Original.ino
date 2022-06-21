@@ -39,20 +39,23 @@
 //WiFi Status LED
 #define wifiLed 0  //D0
 
-// Update these with values suitable for your network.
-
-const char* ssid = "RVR 2,4GHz";                      //WiFI Name
-const char* password = "RodrigoValRobson2021";        //WiFi Password
-//const char* mqttServer = "broker.hivemq.com";
-const char* mqttServer = "192.168.15.30";             // IP do Broker
-const char* mqttUserName = "Robson Brasil";           // MQTT UserName
-const char* mqttPwd = "LoboAlfa";                     // MQTT Password
-const char* clientID = "ESP32ClientGoogleAssistant";  // Client ID Obs.: Deve ser único
-
 // Constantes -------------------------------------------
 const char*   ntpServer           = "pool.ntp.br";
 const long    gmtOffset_sec       = -4 * 60 * 60;   // -3h*60min*60s = -10800s
 const int     daylightOffset_sec  = 0;              // Fuso em horário de verão
+const char*   ssid = "RVR 2,4GHz";                      //WiFI Name
+const char*   password = "RodrigoValRobson2021";        //WiFi Password
+//const char* mqttServer = "broker.hivemq.com";
+const char*   mqttServer = "192.168.15.30";             // IP do Broker
+const char*   mqttUserName = "Robson Brasil";           // MQTT UserName
+const char*   mqttPwd = "LoboAlfa";                     // MQTT Password
+const char*   clientID = "ESP32ClientGoogleAssistant";  // Client ID Obs.: Deve ser único
+
+
+IPAddress staticIP(192, 168, 15, 50);
+IPAddress gateway (192, 168, 15, 1);
+IPAddress subnet  (255, 255, 255, 0);
+IPAddress dns     (192, 168, 15, 1);
 
 // Variáveis globais ------------------------------------
 time_t        nextNTPSync         = 0;
@@ -121,11 +124,6 @@ String timeStatus() {
   Serial.println("Limite para próxima sincronização é " +
                   dateTimeStr(nextNTPSync));
 }
-
-IPAddress staticIP(192, 168, 15, 50);
-IPAddress gateway(192, 168, 15, 1);
-IPAddress subnet(255, 255, 255, 0);
-IPAddress dns(192, 168, 15, 1);
 
 //Tópicos do Subscribe
 #define sub1 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor1"   // Ligados ao Nora
