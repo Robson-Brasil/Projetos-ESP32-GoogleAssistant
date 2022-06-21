@@ -1,7 +1,7 @@
 #include <Wire.h>
-#include <LiquidCrystal_I2C.h> //biblioteca responsável pelo controle do display
+//#include <LiquidCrystal_I2C.h> //biblioteca responsável pelo controle do display
 
-LiquidCrystal_I2C lcd(0x27, 16, 2); //set the LCD address to 0x27 for a 16 chars and 2 line display
+//LiquidCrystal_I2C lcd(0x27, 16, 2); //set the LCD address to 0x27 for a 16 chars and 2 line display
 
 int count  = 0;
 int blinked = 0;
@@ -21,12 +21,12 @@ void setup() {
   pinMode(pin_btn, INPUT);
 
   //inicializa o LCD com os pinos SDA e SCL
-  lcd.begin(19, 23);
+//  lcd.begin(19, 23);
 
   // Liga a luz do display
-  lcd.backlight();
-  lcd.setCursor(0, 0);
-  lcd.print("Piscadas:");
+//  lcd.backlight();
+//  lcd.setCursor(0, 0);
+//  lcd.print("Piscadas:");
 
   //cria uma tarefa que será executada na função coreTaskZero, com prioridade 1 e execução no núcleo 0
   //coreTaskZero: piscar LED e contar quantas vezes
@@ -90,11 +90,11 @@ void coreTaskZero( void * pvParameters ){
 //display a cada 100ms
 void coreTaskOne( void * pvParameters ){
      while(true){
-        lcd.setCursor(10, 0);
-        lcd.print(blinked);
+//        lcd.setCursor(10, 0);
+//        lcd.print(blinked);
 
-        lcd.setCursor(0,1);
-        lcd.print(statusButton);
+ //       lcd.setCursor(0,1);
+  //      lcd.print(statusButton);
         delay(100);
     } 
 }
