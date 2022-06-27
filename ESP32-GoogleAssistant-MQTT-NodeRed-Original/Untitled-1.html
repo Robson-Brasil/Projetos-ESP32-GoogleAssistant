@@ -1,0 +1,115 @@
+<!DOCTYPE HTML><html>
+  <html lang="pt-br"></html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style data-merge-styles="true"></style>
+  <title>ESP32 Web Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <style>
+    html {font-family: Arial; display: inline-block; text-align: center;}
+    h2 {font-size: 3.0rem;}
+    p {font-size: 3.0rem;}
+    body {max-width: 600px; margin:0px auto; padding-bottom: 25px;}
+    .switch {position: relative; display: inline-block; width: 100px; height: 50px} 
+    .switch input {display: none}
+    .slider {position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; border-radius: 6px}
+    .slider:before {position: absolute; content: ""; height: 32px; width: 32px; left: 8px; bottom: 8px; background-color: #fff; -webkit-transition: .4s; transition: .4s; border-radius: 3px}
+    input:checked+.slider {background-color: #121010}
+    input:checked+.slider:before {-webkit-transform: translateX(52px); -ms-transform: translateX(52px); transform: translateX(52px)}
+  </style>
+</head>
+<body>
+  <!DOCTYPE HTML><html>
+    <html lang="pt-br"></html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style data-merge-styles="true"></style>
+  <title>ESP32 Web Server</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <style>
+    html {
+     font-family: Arial;
+     display: inline-block;
+     margin: 0px auto;
+     text-align: center;
+    }
+    h2 { font-size: 3.0rem; }
+    p { font-size: 3.0rem; }
+    .units { font-size: 1.2rem; }
+    .dht-labels{
+      font-size: 1.5rem;
+      vertical-align:middle;
+      padding-bottom: 15px;
+    }
+  </style>
+</head>
+</body>
+<body>
+  <center><h2>Automação Residencial</h2> 
+  <center><h2>DHT Server com ESP32</h2>
+  <p>
+    <i class="fas fa-thermometer-half" style="color:#059e8a;"></i> 
+    <span class="dht-labels">Temperatura</span> 
+    <span id="temperature">%TEMPERATURE%</span>
+    <sup class="units">&deg;C</sup>
+  </p>
+  <p>
+    <i class="fas fa-tint" style="color:#00add6;"></i> 
+    <span class="dht-labels">Humidade</span>
+    <span id="humidity">%HUMIDITY%</span>
+    <sup class="units">&percnt;</sup>
+  </p>
+</body>
+<script>
+
+<body>
+<!DOCTYPE HTML><html>
+  <html lang="pt-br"></html>
+<head>
+ <style type="text/css">
+.tg  {border-collapse:collapse;border-color:#9ABAD9;border-spacing:0;}
+.tg td{background-color:#EBF5FF;border-color:#9ABAD9;border-style:solid;border-width:1px;color:#444;
+  font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{background-color:#409cff;border-color:#9ABAD9;border-style:solid;border-width:1px;color:#fff;
+  font-family:Arial, sans-serif;font-size:14px;font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-c3ow{border-color:inherit;text-align:center;vertical-align:top}
+.tg .tg-fbeb{background-color:#ffffff;border-color:#9ABAD9;color:#333333;text-align:left;vertical-align:top}
+.tg .tg-i91a{border-color:inherit;color:#333333;text-align:center;vertical-align:center}
+.tg .tg-0pky{border-color:inherit;text-align:center;vertical-align:center}
+.tg .tg-i91b{border-color:inherit;color:#333333;text-align:center;vertical-align:center}
+.tg .tg-1pky{border-color:inherit;text-align:center;vertical-align:center}
+.tg .tg-i91c{border-color:inherit;color:#333333;text-align:center;vertical-align:center}
+.tg .tg-2pky{border-color:inherit;text-align:center;vertical-align:center}
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-fbeb"></th>
+    <th class="tg-c3ow" colspan="2">Interruptor 1</th>
+    <th class="tg-c3ow" colspan="2">Interruptor 2</th>
+    <th class="tg-c3ow" colspan="2">Interruptor 3</th>
+    <th class="tg-c3ow" colspan="2">Interruptor 4</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-i91a"><h4>Conjunto 1</h4></td>
+    <td class="tg-0pky" colspan="2">%BUTTONPLACEHOLDER1%</td>
+    <td class="tg-0pky" colspan="2">%BUTTONPLACEHOLDER2%</td>
+    <td class="tg-0pky" colspan="2">%BUTTONPLACEHOLDER3%</td>
+    <td class="tg-0pky" colspan="2">%BUTTONPLACEHOLDER4%</td>
+    </tr>
+    <tr> 
+    <td class="tg-i91b"><h4>Conjunto 2</h4></td>
+    <td class="tg-1pky" colspan="2">%BUTTONPLACEHOLDER5%</td>
+    <td class="tg-1pky" colspan="2">%BUTTONPLACEHOLDER6%</td>
+    <td class="tg-1pky" colspan="2">%BUTTONPLACEHOLDER7%</td>
+    <td class="tg-1pky" colspan="2">%BUTTONPLACEHOLDER8%</td>
+     </tr>
+    </tbody>
+</table>
+</body>
+</script>
+</body>
+</head>
+</html>
