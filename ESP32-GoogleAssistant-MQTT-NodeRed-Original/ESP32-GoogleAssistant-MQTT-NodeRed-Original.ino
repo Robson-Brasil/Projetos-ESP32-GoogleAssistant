@@ -12,22 +12,22 @@ Versão : 1 - Alfa
 #include <PubSubClient.h> // Importa a Biblioteca PubSubClient
 #include <DHT.h>          // Importa a Biblioteca DHT
 #include <WiFiUdp.h>      // Importa a Biblioteca WiFiUdp
-#include <esp_task_wdt.h>
+#include <esp_task_wdt.h> // Importa a Biblioteca do WatchDog
 
 //Tópicos do Subscribe
-#define sub0 "ESP32-MinhaCasa/QuartoRobson/Ligar-DesligarTudo"  // Somente por MQTT
-#define sub1 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor1"   // Ligados ao Nora/MQTT
-#define sub2 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor2"   // Ligados ao Nora/MQTT
-#define sub3 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor3"   // Ligados ao Nora/MQTT
-#define sub4 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor4"   // Ligados ao Nora/MQTT
-#define sub5 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor5"   // Ligados ao Nora/MQTT
-#define sub6 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor6"   // Somente por MQTT
-#define sub7 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor7"   // Somente por MQTT
-#define sub8 "ESP32-MinhaCasa/QuartoRobson/LigarInterruptor8"   // Somente por MQTT
+#define sub0 "ESP32/MinhaCasa/QuartoRobson/Ligar-DesligarTudo"  // Somente por MQTT
+#define sub1 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor1"   // Ligados ao Nora/MQTT
+#define sub2 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor2"   // Ligados ao Nora/MQTT
+#define sub3 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor3"   // Ligados ao Nora/MQTT
+#define sub4 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor4"   // Ligados ao Nora/MQTT
+#define sub5 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor5"   // Ligados ao Nora/MQTT
+#define sub6 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor6"   // Somente por MQTT
+#define sub7 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor7"   // Somente por MQTT
+#define sub8 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor8"   // Somente por MQTT
 
 //Tópicos do Publish
-#define pub1 "ESP32-MinhaCasa/QuartoRobson/Temperatura"
-#define pub2 "ESP32-MinhaCasa/QuartoRobson/Umidade"
+#define pub1 "ESP32/MinhaCasa/QuartoRobson/Temperatura"
+#define pub2 "ESP32/MinhaCasa/QuartoRobson/Umidade"
                                                    
 #define ID_MQTT  "ESP32-IoT"   /* ID MQTT (para identificação de sessão)
                                IMPORTANTE: Este deve ser único no broker (ou seja, 
@@ -74,7 +74,7 @@ hw_timer_t *timer = NULL; //faz o controle do temporizador (interrupção por te
 
 //Função que o temporizador irá chamar, para reiniciar o ESP32
 void IRAM_ATTR resetModule(){
-    ets_printf("(watchdog) reiniciar\n"); //imprime no log
+    ets_printf("(WatchDog) Reiniciar\n"); //imprime no log
     esp_restart(); //reinicia o chip
   }
   
@@ -130,7 +130,7 @@ void setup()
     //timer, callback, interrupção de borda
     timerAttachInterrupt(timer, &resetModule, true);
     //timer, tempo (us), repetição
-    timerAlarmWrite(timer, 3000000, true);
+    timerAlarmWrite(timer, 10000000, true);
     timerAlarmEnable(timer); //habilita a interrupção
 }
   
@@ -332,7 +332,7 @@ void reconnectMQTT()
         else
         {
             Serial.println("Falha ao reconectar no broker.");
-            Serial.println("Havera nova tentatica de conexao em 2s");
+            Serial.println("Haverá nova tentativa de conexão em 2s");
             delay(2000);
         }
     }
@@ -433,9 +433,9 @@ void loop()
     
     lastMsg = now;
       
-    MQTT.publish("ESP32-MinhaCasa/QuartoRobson/Temperatura", str_temp_data);
+    MQTT.publish("ESP32/MinhaCasa/QuartoRobson/Temperatura", str_temp_data);
     
-    MQTT.publish("ESP32-MinhaCasa/QuartoRobson/Umidade", str_hum_data);
+    MQTT.publish("ESP32/MinhaCasa/QuartoRobson/Umidade", str_hum_data);
        }
  
 //Garante funcionamento das conexões WiFi e ao Broker MQTT
