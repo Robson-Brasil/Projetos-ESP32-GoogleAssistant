@@ -4,13 +4,13 @@ Dispositivo : ESP32 WROOM32
 Broker MQTT
 Red-Node/Nora/Google Assistant
 Autor : Robson Brasil
-Versão : 1 - Alfa
-Última Modificação : 29/06/2022
+Versão : 3 - Alfa
+Última Modificação : 05/07/2022
 **********************************************************************************/
 //Bibliotecas
 #include <WiFi.h>         // Importa a Biblioteca WiFi
 #include <PubSubClient.h> // Importa a Biblioteca PubSubClient
-#include <DHT.h>          // Importa a Biblioteca DHT
+#include "DHT.h"          // Importa a Biblioteca DHT
 #include <WiFiUdp.h>      // Importa a Biblioteca WiFiUdp
 #include <esp_task_wdt.h> // Importa a Biblioteca do WatchDog
 
@@ -28,6 +28,7 @@ Versão : 1 - Alfa
 //Tópicos do Publish
 #define pub1 "ESP32/MinhaCasa/QuartoRobson/Temperatura"
 #define pub2 "ESP32/MinhaCasa/QuartoRobson/Umidade"
+#define pub3 "ESP32/MinhaCasa/QuartoRobson/SensacaoTermica"
                                                    
 #define ID_MQTT  "ESP32-IoT"   /* ID MQTT (para identificação de sessão)
                                IMPORTANTE: Este deve ser único no broker (ou seja, 
@@ -59,8 +60,8 @@ const char* PASSWORD      = "RodrigoValRobson2021"; // Senha da rede WI-FI que d
   
 //Configurações do Broker MQTT
 const char* BROKER_MQTT   = "192.168.15.30";        //URL do broker MQTT que se deseja utilizar
-const char* mqttUserName  = "Robson Brasil";        // MQTT UserName
-const char* mqttPwd       = "LoboAlfa";             // MQTT Password
+const char* mqttUserName  = "RobsonBrasil";         // MQTT UserName
+const char* mqttPwd       = "loboalfa";             // MQTT Password
 int BROKER_PORT           = 1883;                   // Porta do Broker MQTT
 
 //IP Estático
@@ -89,6 +90,7 @@ PubSubClient MQTT(espClient); // Instancia o Cliente MQTT passando o objeto espC
 
 char str_hum_data[10];
 char str_temp_data[10];
+char str_tempterm_data[10];
 
 #define MSG_BUFFER_SIZE (1000)
 unsigned long lastMsg = 0;
@@ -151,7 +153,6 @@ void initWiFi()
      
     reconectWiFi();
 }
-  
 //Função: inicializa parâmetros de conexão MQTT(endereço do broker, porta e seta função de callback)
 void initMQTT() 
 {
@@ -307,7 +308,6 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
     }
    } 
 }
-  
 /* Função: reconecta-se ao broker MQTT (caso ainda não esteja conectado ou em caso de a conexão cair)
 em caso de sucesso na conexão ou reconexão, o subscribe dos tópicos é refeito.*/
 void reconnectMQTT() 
@@ -337,7 +337,6 @@ void reconnectMQTT()
         }
     }
 }
-  
 //Função: reconecta-se ao WiFi
 void reconectWiFi() 
 {
@@ -420,7 +419,7 @@ void loop()
     delay(100);
     tme = millis() - tme; //calcula o tempo (atual - inicial)
     watchDogRefresh();
-        
+
     unsigned long now = millis();
     if (now - lastMsg > 1000) {
 
@@ -428,16 +427,20 @@ void loop()
     dtostrf(temp_data, 4, 2, str_temp_data);
 
     float hum_data = dht.readHumidity();
-/* 4 is mininum width, 2 is precision; float value is copied onto str_sensor*/
+    /* 4 is mininum width, 2 is precision; float value is copied onto str_sensor*/
     dtostrf(hum_data, 4, 2, str_hum_data);
+
+    float tempterm_data = dht.computeHeatIndex(temp_data, hum_data);
+    dtostrf(tempterm_data, 4, 2, str_tempterm_data);
     
     lastMsg = now;
       
     MQTT.publish("ESP32/MinhaCasa/QuartoRobson/Temperatura", str_temp_data);
     
     MQTT.publish("ESP32/MinhaCasa/QuartoRobson/Umidade", str_hum_data);
+
+    MQTT.publish("ESP32/MinhaCasa/QuartoRobson/SensacaoTermica", str_tempterm_data);
        }
- 
 //Garante funcionamento das conexões WiFi e ao Broker MQTT
     VerificaConexoesWiFIEMQTT();
 
