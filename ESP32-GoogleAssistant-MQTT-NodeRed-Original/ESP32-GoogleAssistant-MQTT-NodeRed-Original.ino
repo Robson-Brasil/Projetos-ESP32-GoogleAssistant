@@ -7,6 +7,7 @@ Autor : Robson Brasil
 Versão : 3 - Alfa
 Última Modificação : 05/07/2022
 **********************************************************************************/
+
 //Bibliotecas
 #include <WiFi.h>         // Importa a Biblioteca WiFi
 #include <PubSubClient.h> // Importa a Biblioteca PubSubClient
@@ -108,7 +109,7 @@ void watchDogRefresh();
 void IRAM_ATTR watchDogInterrupt();
 
 /* 
- Implementações das funções
+Implementações das funções
  */
 void setup() 
 {
@@ -120,7 +121,6 @@ void setup()
     dht.begin();
 
     //WatchDog 
-
     //hw_timer_t * timerBegin(uint8_t num, uint16_t divider, bool countUp)
     /*
       num: é a ordem do temporizador. Podemos ter quatro temporizadores, então a ordem pode ser [0,1,2,3].
@@ -153,6 +153,7 @@ void initWiFi()
      
     reconectWiFi();
 }
+
 //Função: inicializa parâmetros de conexão MQTT(endereço do broker, porta e seta função de callback)
 void initMQTT() 
 {
@@ -308,6 +309,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
     }
    } 
 }
+
 /* Função: reconecta-se ao broker MQTT (caso ainda não esteja conectado ou em caso de a conexão cair)
 em caso de sucesso na conexão ou reconexão, o subscribe dos tópicos é refeito.*/
 void reconnectMQTT() 
@@ -337,6 +339,7 @@ void reconnectMQTT()
         }
     }
 }
+
 //Função: reconecta-se ao WiFi
 void reconectWiFi() 
 {
@@ -412,7 +415,8 @@ void InitOutput(void)
 
 //Programa Principal
 void loop() 
-{   
+{
+   
 //WatchDog 
     timerWrite(timer, 0); //reseta o temporizador (alimenta o watchdog) 
     long tme = millis(); //tempo inicial do loop
@@ -440,7 +444,8 @@ void loop()
     MQTT.publish("ESP32/MinhaCasa/QuartoRobson/Umidade", str_hum_data);
 
     MQTT.publish("ESP32/MinhaCasa/QuartoRobson/SensacaoTermica", str_tempterm_data);
-       }
+   }
+       
 //Garante funcionamento das conexões WiFi e ao Broker MQTT
     VerificaConexoesWiFIEMQTT();
 
