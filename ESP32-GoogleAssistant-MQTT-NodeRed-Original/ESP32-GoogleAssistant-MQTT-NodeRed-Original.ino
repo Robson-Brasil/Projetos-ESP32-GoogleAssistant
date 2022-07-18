@@ -60,9 +60,9 @@ const char* SSID          = "RVR 2,4GHz";           // SSID / nome da rede WI-FI
 const char* PASSWORD      = "RodrigoValRobson2021"; // Senha da rede WI-FI que deseja se conectar
   
 //Configurações do Broker MQTT
-const char* BROKER_MQTT   = "192.168.15.30";        //URL do broker MQTT que se deseja utilizar
+const char* BROKER_MQTT   = "192.168.15.20";        //URL do broker MQTT que se deseja utilizar
 const char* mqttUserName  = "RobsonBrasil";         // MQTT UserName
-const char* mqttPwd       = "loboalfa";             // MQTT Password
+const char* mqttPwd       = "alfa";                 // MQTT Password
 int BROKER_PORT           = 1883;                   // Porta do Broker MQTT
 
 //IP Estático
@@ -92,6 +92,7 @@ PubSubClient MQTT(espClient); // Instancia o Cliente MQTT passando o objeto espC
 char str_hum_data[10];
 char str_temp_data[10];
 char str_tempterm_data[10];
+char str_tempF_data[10];
 
 #define MSG_BUFFER_SIZE (1000)
 unsigned long lastMsg = 0;
@@ -434,7 +435,14 @@ void loop()
     /* 4 is mininum width, 2 is precision; float value is copied onto str_sensor*/
     dtostrf(hum_data, 4, 2, str_hum_data);
 
-    float tempterm_data = dht.computeHeatIndex(temp_data, hum_data);
+    float tempF_data = dht.readTemperature(true);
+    dtostrf(tempF_data, 4, 2, str_tempF_data);
+
+    float tempterm_data = 0;
+    dtostrf(tempterm_data, 4, 2, str_tempterm_data);
+
+    tempterm_data = dht.computeHeatIndex(tempF_data, hum_data);
+    tempterm_data = dht.convertFtoC(tempterm_data);
     dtostrf(tempterm_data, 4, 2, str_tempterm_data);
     
     lastMsg = now;
