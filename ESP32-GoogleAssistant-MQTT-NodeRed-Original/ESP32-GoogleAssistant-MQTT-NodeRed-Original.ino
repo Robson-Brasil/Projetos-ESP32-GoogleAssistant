@@ -4,8 +4,8 @@ Dispositivo : ESP32 WROOM32
 Broker MQTT
 Red-Node/Nora/Google Assistant
 Autor : Robson Brasil
-Versão : 3 - Alfa
-Última Modificação : 05/07/2022
+Versão : 4 - Alfa
+Última Modificação : 20/07/2022
 **********************************************************************************/
 
 //Bibliotecas
@@ -16,20 +16,31 @@ Versão : 3 - Alfa
 #include <esp_task_wdt.h> // Importa a Biblioteca do WatchDog
 
 //Tópicos do Subscribe
-#define sub0 "ESP32/MinhaCasa/QuartoRobson/Ligar-DesligarTudo"  // Somente por MQTT
-#define sub1 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor1"   // Ligados ao Nora/MQTT
-#define sub2 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor2"   // Ligados ao Nora/MQTT
-#define sub3 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor3"   // Ligados ao Nora/MQTT
-#define sub4 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor4"   // Ligados ao Nora/MQTT
-#define sub5 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor5"   // Ligados ao Nora/MQTT
-#define sub6 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor6"   // Somente por MQTT
-#define sub7 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor7"   // Somente por MQTT
-#define sub8 "ESP32/MinhaCasa/QuartoRobson/LigarInterruptor8"   // Somente por MQTT
+const char* sub0 = "ESP32/MinhaCasa/QuartoRobson/Ligar-DesligarTudo/Comando";  // Somente por MQTT
+const char* sub1 = "ESP32/MinhaCasa/QuartoRobson/Interruptor1/Comando";   // Ligados ao Nora/MQTT
+const char* sub2 = "ESP32/MinhaCasa/QuartoRobson/Interruptor2/Comando";   // Ligados ao Nora/MQTT
+const char* sub3 = "ESP32/MinhaCasa/QuartoRobson/Interruptor3/Comando";   // Ligados ao Nora/MQTT
+const char* sub4 = "ESP32/MinhaCasa/QuartoRobson/Interruptor4/Comando";   // Ligados ao Nora/MQTT
+const char* sub5 = "ESP32/MinhaCasa/QuartoRobson/Interruptor5/Comando";   // Ligados ao Nora/MQTT
+const char* sub6 = "ESP32/MinhaCasa/QuartoRobson/Interruptor6/Comando";   // Somente por MQTT
+const char* sub7 = "ESP32/MinhaCasa/QuartoRobson/Interruptor7/Comando";   // Somente por MQTT
+const char* sub8 = "ESP32/MinhaCasa/QuartoRobson/Interruptor8/Comando";   // Somente por MQTT
 
 //Tópicos do Publish
-#define pub1 "ESP32/MinhaCasa/QuartoRobson/Temperatura"
-#define pub2 "ESP32/MinhaCasa/QuartoRobson/Umidade"
-#define pub3 "ESP32/MinhaCasa/QuartoRobson/SensacaoTermica"
+#define pub0  "ESP32/MinhaCasa/QuartoRobson/Ligar-DesligarTudo/Estado"  // Somente por MQTT
+#define pub1  "ESP32/MinhaCasa/QuartoRobson/Interruptor1/Estado"   // Ligados ao Nora/MQTT
+#define pub2  "ESP32/MinhaCasa/QuartoRobson/Interruptor2/Estado"   // Ligados ao Nora/MQTT
+#define pub3  "ESP32/MinhaCasa/QuartoRobson/Interruptor3/Estado"   // Ligados ao Nora/MQTT
+#define pub4  "ESP32/MinhaCasa/QuartoRobson/Interruptor4/Estado"   // Ligados ao Nora/MQTT
+#define pub5  "ESP32/MinhaCasa/QuartoRobson/Interruptor5/Estado"   // Ligados ao Nora/MQTT
+#define pub6  "ESP32/MinhaCasa/QuartoRobson/Interruptor6/Estado"   // Somente por MQTT
+#define pub7  "ESP32/MinhaCasa/QuartoRobson/Interruptor7/Estado"   // Somente por MQTT
+#define pub8  "ESP32/MinhaCasa/QuartoRobson/Interruptor8/Estado"   // Somente por MQTT
+#define pub9  "ESP32/MinhaCasa/QuartoRobson/Temperatura"
+#define pub10 "ESP32/MinhaCasa/QuartoRobson/Umidade"
+#define pub11 "ESP32/MinhaCasa/QuartoRobson/SensacaoTermica"
+
+
                                                    
 #define ID_MQTT  "ESP32-IoT"   /* ID MQTT (para identificação de sessão)
                                IMPORTANTE: Este deve ser único no broker (ou seja, 
@@ -50,6 +61,17 @@ Versão : 3 - Alfa
 //WiFi Status LED
 #define wifiLed    0  //D0
 
+int toggleState_0 = 1; //Define integer to remember the toggle state for relay 1
+int toggleState_1 = 1; //Define integer to remember the toggle state for relay 1
+int toggleState_2 = 1; //Define integer to remember the toggle state for relay 2
+int toggleState_3 = 1; //Define integer to remember the toggle state for relay 3
+int toggleState_4 = 1; //Define integer to remember the toggle state for relay 4
+int toggleState_5 = 1; //Define integer to remember the toggle state for relay 1
+int toggleState_6 = 1; //Define integer to remember the toggle state for relay 2
+int toggleState_7 = 1; //Define integer to remember the toggle state for relay 3
+int toggleState_8 = 1; //Define integer to remember the toggle state for relay 4
+int status_todos = 0;
+
 //DHT22 para leitura dos valores  de Temperatura e Umidity
 #define DHTPIN    16
 #define DHTTYPE DHT22      // DHT 22
@@ -60,10 +82,10 @@ const char* SSID          = "RVR 2,4GHz";           // SSID / nome da rede WI-FI
 const char* PASSWORD      = "RodrigoValRobson2021"; // Senha da rede WI-FI que deseja se conectar
   
 //Configurações do Broker MQTT
-const char* BROKER_MQTT   = "192.168.15.20";        //URL do broker MQTT que se deseja utilizar
-const char* mqttUserName  = "RobsonBrasil";         // MQTT UserName
-const char* mqttPwd       = "alfa";                 // MQTT Password
-int BROKER_PORT           = 1883;                   // Porta do Broker MQTT
+const char* BROKER_MQTT   = "192.168.15.30";      // URL do broker MQTT que se deseja utilizar
+const char* mqttUserName  = "RobsonBrasil";       // MQTT UserName
+const char* mqttPwd       = "LoboAlfa";           // MQTT Password
+int BROKER_PORT           = 1883;                 // Porta do Broker MQTT
 
 //IP Estático
 IPAddress staticIP        (192, 168, 15, 50);
@@ -82,7 +104,7 @@ void IRAM_ATTR resetModule(){
   
 void watchDogRefresh()
 {
-  timerWrite(timer, 0);                    //reset timer (feed watchdog)
+  timerWrite(timer, 0);      //reset timer (feed watchdog)
 }
  
 //Variáveis e objetos globais
@@ -186,7 +208,10 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
       digitalWrite(RelayPin6, HIGH);  // Turn the Relé on Note that HIGH is the voltage level
       digitalWrite(RelayPin7, HIGH);  // Turn the Relé on Note that HIGH is the voltage level
       digitalWrite(RelayPin8, HIGH);  // Turn the Relé on Note that HIGH is the voltage level
-    } 
+      status_todos = 0;
+      toggleState_0 = 0;
+      MQTT.publish(pub0, "0");
+      } 
     else {
       digitalWrite(RelayPin1, LOW);  // Turn the Relé off by making the voltage LOW
       digitalWrite(RelayPin2, LOW);  // Turn the Relé off by making the voltage LOW
@@ -196,7 +221,10 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
       digitalWrite(RelayPin6, LOW);  // Turn the Relé off by making the voltage LOW
       digitalWrite(RelayPin7, LOW);  // Turn the Relé off by making the voltage LOW
       digitalWrite(RelayPin8, LOW);  // Turn the Relé off by making the voltage LOW
-      }
+      status_todos = 1;
+      toggleState_0 = 1;
+      MQTT.publish(pub0, "1");
+       }
     }
     if (strstr(topic, sub1)) {
     for (unsigned int i = 0; i < length; i++) {
@@ -206,9 +234,13 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
     Serial.println();
     if ((char)payload[0] == '0') {
       digitalWrite(RelayPin1, HIGH);  // Turn the LED on (Note that LOW is the voltage level
-    } 
+      toggleState_1 = 0;
+      MQTT.publish(pub1, "0");
+      } 
     else {
       digitalWrite(RelayPin1, LOW);  // Turn the LED off by making the voltage HIGH
+      toggleState_1 = 1;
+      MQTT.publish(pub1, "1");
       }
     } 
     if (strstr(topic, sub2)) {
@@ -220,9 +252,13 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '0') {
       digitalWrite(RelayPin2, HIGH);  // Turn the LED on (Note that LOW is the voltage level
-    } 
+      toggleState_2 = 0;
+      MQTT.publish(pub2, "0");
+      } 
     else {
       digitalWrite(RelayPin2, LOW);  // Turn the LED off by making the voltage HIGH
+      toggleState_2 = 1;
+      MQTT.publish(pub2, "1");
       }
     }
     if (strstr(topic, sub3)) {
@@ -234,9 +270,13 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '0') {
       digitalWrite(RelayPin3, HIGH);  // Turn the LED on (Note that LOW is the voltage level
-    } 
+      toggleState_3 = 0;
+      MQTT.publish(pub3, "0");
+      } 
     else {
       digitalWrite(RelayPin3, LOW);  // Turn the LED off by making the voltage HIGH
+      toggleState_3 = 1;
+      MQTT.publish(pub3, "1");
       }
     }
     if (strstr(topic, sub4)) {
@@ -248,9 +288,13 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '0') {
       digitalWrite(RelayPin4, HIGH);  // Turn the LED on (Note that LOW is the voltage level
-    } 
+      toggleState_4 = 0;
+      MQTT.publish(pub4, "0");
+      } 
     else {
       digitalWrite(RelayPin4, LOW);  // Turn the LED off by making the voltage HIGH
+      toggleState_4 = 1;
+      MQTT.publish(pub4, "1");
       }
     }
     if (strstr(topic, sub5)) {
@@ -262,9 +306,13 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '0') {
       digitalWrite(RelayPin5, HIGH);  // Turn the LED on (Note that LOW is the voltage level
-    } 
+      toggleState_5 = 0;
+      MQTT.publish(pub5, "0");
+      } 
     else {
       digitalWrite(RelayPin5, LOW);  // Turn the LED off by making the voltage HIGH
+      toggleState_5 = 1;
+      MQTT.publish(pub5, "1");
       }
     }
     if (strstr(topic, sub6)) {
@@ -276,9 +324,13 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '0') {
       digitalWrite(RelayPin6, HIGH);  // Turn the LED on (Note that LOW is the voltage level
-    } 
+      toggleState_6 = 0;
+      MQTT.publish(pub6, "0");
+      } 
     else {
       digitalWrite(RelayPin6, LOW);  // Turn the LED off by making the voltage HIGH
+      toggleState_6 = 1;
+      MQTT.publish(pub6, "1");
       }
     }
     if (strstr(topic, sub7)) {
@@ -290,9 +342,13 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '0') {
       digitalWrite(RelayPin7, HIGH);  // Turn the LED on (Note that LOW is the voltage level
-    } 
+      toggleState_7 = 0;
+      MQTT.publish(pub7, "0");
+      } 
     else {
       digitalWrite(RelayPin7, LOW);  // Turn the LED off by making the voltage HIGH
+      toggleState_7 = 1;
+      MQTT.publish(pub7, "1");
       }
     }
     if (strstr(topic, sub8)) {
@@ -304,10 +360,14 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length)
     // Switch on the LED if an 1 was received as first character
     if ((char)payload[0] == '0') {
       digitalWrite(RelayPin8, HIGH);  // Turn the LED on (Note that LOW is the voltage level
-    } 
+      toggleState_8 = 0;
+      MQTT.publish(pub8, "0");
+      } 
     else {
       digitalWrite(RelayPin8, LOW);  // Turn the LED off by making the voltage HIGH
-    }
+      toggleState_8 = 1;
+      MQTT.publish(pub8, "1");
+      }
    } 
 }
 
@@ -335,6 +395,7 @@ void reconnectMQTT()
         else
         {
             Serial.println("Falha ao reconectar no broker.");
+            Serial.print(MQTT.state());
             Serial.println("Haverá nova tentativa de conexão em 2s");
             delay(2000);
         }
@@ -447,12 +508,59 @@ void loop()
     
     lastMsg = now;
       
-    MQTT.publish("ESP32/MinhaCasa/QuartoRobson/Temperatura", str_temp_data);
+    MQTT.publish(pub9, str_temp_data);
     
-    MQTT.publish("ESP32/MinhaCasa/QuartoRobson/Umidade", str_hum_data);
+    MQTT.publish(pub10, str_hum_data);
 
-    MQTT.publish("ESP32/MinhaCasa/QuartoRobson/SensacaoTermica", str_tempterm_data);
-   }
+    MQTT.publish(pub11, str_tempterm_data);
+
+    if (digitalRead(RelayPin1) == HIGH){
+      MQTT.publish(pub1, "0");
+    } else {
+      MQTT.publish(pub1, "1");
+    }
+    if (digitalRead(RelayPin2) == HIGH){
+      MQTT.publish(pub2, "0");
+    } else {
+      MQTT.publish(pub2, "1");
+    }
+    if (digitalRead(RelayPin3) == HIGH){
+      MQTT.publish(pub3, "0");
+    } else {
+      MQTT.publish(pub3, "1");
+    }
+    if (digitalRead(RelayPin4) == HIGH){
+      MQTT.publish(pub4, "0");
+    } else {
+      MQTT.publish(pub4, "1");
+    }
+    if (digitalRead(RelayPin5) == HIGH){
+      MQTT.publish(pub5, "0");
+    } else {
+      MQTT.publish(pub5, "1");
+    }
+    if (digitalRead(RelayPin6) == HIGH){
+      MQTT.publish(pub6, "0");
+    } else {
+      MQTT.publish(pub6, "1");
+    }
+    if (digitalRead(RelayPin7) == HIGH){
+      MQTT.publish(pub7, "0");
+    } else {
+      MQTT.publish(pub7, "1");
+    }
+    if (digitalRead(RelayPin8) == HIGH){
+      MQTT.publish(pub8, "0");
+    } else {
+      MQTT.publish(pub8, "1");
+    }
+    if (status_todos == 1) {
+      MQTT.publish(pub0, "1");
+    } else {
+      MQTT.publish(pub0, "0");
+    }
+    
+ }
        
 //Garante funcionamento das conexões WiFi e ao Broker MQTT
     VerificaConexoesWiFIEMQTT();
